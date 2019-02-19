@@ -100,7 +100,7 @@ public class EventControllerTests {
     }
 
     @Test
-    @TestDescription("잘못된 값이 있는 경우")
+    @TestDescription("입력 밧이 잘못된 경우에 에러가 발생하는 이벤트")
     public void createEvent_Bad_Request_Wrong_Input() throws Exception {
         EventDto eventDto = EventDto.builder()
                 .name("Spring")
@@ -109,7 +109,7 @@ public class EventControllerTests {
                 .closeEnrollmentDateTime(LocalDateTime.of(2018, 11, 24, 14, 21))
                 .beginEventDateTime(LocalDateTime.of(2018, 11, 23, 14, 21))
                 .endEventDateTime(LocalDateTime.of(2018, 11, 22, 14, 21))
-                .basePrice(100)
+                .basePrice(10000)
                 .maxPrice(200)
                 .limitOfEnrollment(100)
                 .build();
@@ -117,6 +117,10 @@ public class EventControllerTests {
         mockMvc.perform(post("/api/events/")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(objectMapper.writeValueAsString(eventDto)))
-                .andExpect(status().isBadRequest());
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].objectName").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
+                .andExpect(jsonPath("$[0].code").exists());
     }
 }
